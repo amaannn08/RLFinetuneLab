@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rlfinetunelab"
+version = "0.1.0"
+description = "A config-driven RL fine-tuning pipeline for Small Language Models (SFT, DPO, GRPO)"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "Amaan Gupta", email = "amaannn.gupta.08@gmail.com" }
+]
+requires-python = ">=3.10"
+keywords = [
+    "reinforcement-learning",
+    "fine-tuning",
+    "llm",
+    "slm",
+    "lora",
+    "qlora",
+    "dpo",
+    "grpo",
+    "transformers",
+    "trl",
+    "deepseek"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.1.0",
+    "transformers>=4.45.0",
+    "peft>=0.12.0",
+    "trl>=0.12.0",
+    "accelerate>=0.34.0",
+    "datasets>=2.20.0",
+    "pydantic>=2.7.0",
+    "pyyaml>=6.0",
+    "rich>=13.7.0",
+    "tqdm>=4.66.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "bitsandbytes>=0.43.0",
+    "flash-attn>=2.5.0; platform_system == 'Linux'",
+]
+serve = [
+    "vllm>=0.6.0",
+]
+eval = [
+    "rouge-score>=0.1.2",
+    "evaluate>=0.4.1",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.4.0",
+    "black>=24.3.0",
+    "mypy>=1.9.0",
+]
+
+[project.scripts]
+rlfinetune = "rlfinetunelab.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["rlfinetunelab*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

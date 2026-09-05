@@ -48,7 +48,7 @@ def run_dpo_training(
             quant_config=config.quantization,
             lora_config=config.lora,
             is_trainable=True,
-            padding_side="left", # Left padding is standard for generation/DPO
+            padding_side="left",
         )
 
     # 2. Load dataset if not injected
@@ -61,6 +61,7 @@ def run_dpo_training(
             train_dataset = ds
 
     peft_config = build_peft_config(config.lora) if config.lora else None
+    warmup_steps = max(1, int(dpo_cfg.warmup_ratio * (dpo_cfg.max_steps if dpo_cfg.max_steps > 0 else 100)))
 
     # 3. Setup DPOConfig
     training_args = DPOConfig(
@@ -72,7 +73,7 @@ def run_dpo_training(
         gradient_accumulation_steps=dpo_cfg.gradient_accumulation_steps,
         learning_rate=dpo_cfg.learning_rate,
         lr_scheduler_type=dpo_cfg.lr_scheduler_type,
-        warmup_ratio=dpo_cfg.warmup_ratio,
+        warmup_steps=warmup_steps,
         weight_decay=dpo_cfg.weight_decay,
         logging_steps=dpo_cfg.logging_steps,
         save_steps=dpo_cfg.save_steps,
@@ -92,7 +93,7 @@ def run_dpo_training(
     # 4. Initialize DPOTrainer
     trainer = DPOTrainer(
         model=model,
-        ref_model=ref_model, # None enables PEFT adapter-disabling ref mode
+        ref_model=ref_model,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,

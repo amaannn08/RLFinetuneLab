@@ -60,6 +60,9 @@ def run_sft_training(
     # 3. Setup SFTConfig / TrainingArguments
     peft_config = build_peft_config(config.lora)
 
+    # Calculate warmup steps
+    warmup_steps = max(1, int(sft_cfg.warmup_ratio * (sft_cfg.max_steps if sft_cfg.max_steps > 0 else 100)))
+
     training_args = SFTConfig(
         output_dir=str(output_dir),
         num_train_epochs=sft_cfg.num_train_epochs,
@@ -69,7 +72,7 @@ def run_sft_training(
         gradient_accumulation_steps=sft_cfg.gradient_accumulation_steps,
         learning_rate=sft_cfg.learning_rate,
         lr_scheduler_type=sft_cfg.lr_scheduler_type,
-        warmup_ratio=sft_cfg.warmup_ratio,
+        warmup_steps=warmup_steps,
         weight_decay=sft_cfg.weight_decay,
         logging_steps=sft_cfg.logging_steps,
         save_steps=sft_cfg.save_steps,
@@ -79,9 +82,9 @@ def run_sft_training(
         fp16=sft_cfg.fp16,
         gradient_checkpointing=sft_cfg.gradient_checkpointing,
         report_to=sft_cfg.report_to,
-        max_seq_length=sft_cfg.max_seq_length,
+        max_length=sft_cfg.max_seq_length,
         packing=sft_cfg.packing,
-        dataset_text_field=config.dataset.prompt_field if not config.dataset.response_field else None,
+        dataset_text_field=config.dataset.prompt_field if (hasattr(train_dataset, "column_names") and config.dataset.prompt_field in train_dataset.column_names) else ("text" if hasattr(train_dataset, "column_names") and "text" in train_dataset.column_names else None),
     )
 
     # 4. Initialize Trainer

@@ -72,6 +72,7 @@ def run_grpo_training(
             train_dataset = ds
 
     peft_config = build_peft_config(config.lora) if config.lora else None
+    warmup_steps = max(1, int(grpo_cfg.warmup_ratio * (grpo_cfg.max_steps if grpo_cfg.max_steps > 0 else 100)))
 
     # 3. Build reward function callables
     reward_weights = grpo_cfg.reward_weights or [1.0] * len(grpo_cfg.reward_funcs)
@@ -89,7 +90,7 @@ def run_grpo_training(
         gradient_accumulation_steps=grpo_cfg.gradient_accumulation_steps,
         learning_rate=grpo_cfg.learning_rate,
         lr_scheduler_type=grpo_cfg.lr_scheduler_type,
-        warmup_ratio=grpo_cfg.warmup_ratio,
+        warmup_steps=warmup_steps,
         weight_decay=grpo_cfg.weight_decay,
         num_generations=grpo_cfg.num_generations,
         max_prompt_length=grpo_cfg.max_prompt_length,

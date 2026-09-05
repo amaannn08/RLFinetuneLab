@@ -1,0 +1,68 @@
+project_name: "RLFinetuneLab"
+stage: "grpo"
+run_name: "qwen2.5_0.5b_grpo_math"
+
+model:
+  name_or_path: "Qwen/Qwen2.5-0.5B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+  use_fast_tokenizer: true
+  trust_remote_code: true
+  device_map: "auto"
+
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_quant_type: "nf4"
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"
+
+dataset:
+  dataset_name: "openai/gsm8k"
+  dataset_config_name: "main"
+  dataset_split: "train"
+  prompt_field: "question"
+  response_field: "answer"
+  format_type: "custom"
+  max_train_samples: 1000
+  max_eval_samples: 100
+
+grpo:
+  output_dir: "outputs/grpo_qwen0.5b"
+  num_train_epochs: 1.0
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-6
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+  num_generations: 4
+  max_prompt_length: 256
+  max_completion_length: 512
+  temperature: 0.8
+  top_p: 0.95
+  beta: 0.04
+  epsilon: 0.2
+  reward_funcs:
+    - "accuracy"
+    - "format"
+  reward_weights:
+    - 1.5
+    - 0.5
+  gradient_checkpointing: true
+  logging_steps: 5
+  save_steps: 50
+  bf16: true
+  report_to:
+    - "tensorboard"

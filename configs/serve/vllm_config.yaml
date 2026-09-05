@@ -1,0 +1,13 @@
+# vLLM Serving Configuration for RLFinetuneLab Checkpoints
+model: "outputs/merged_model"
+host: "0.0.0.0"
+port: 8000
+tensor_parallel_size: 1
+gpu_memory_utilization: 0.85
+max_model_len: 4096
+dtype: "bfloat16"
+served_model_name: "qwen2.5-reasoner"
+chat_template: null # Uses tokenizer chat template automatically
+enable_prefix_caching: true
+enforce_eager: false
+max_num_seqs: 64

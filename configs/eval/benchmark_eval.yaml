@@ -1,0 +1,24 @@
+project_name: "RLFinetuneLab"
+stage: "eval"
+
+model:
+  name_or_path: "outputs/merged_model"
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+
+dataset:
+  dataset_name: "openai/gsm8k"
+  dataset_config_name: "main"
+  dataset_split: "test"
+  prompt_field: "question"
+  response_field: "answer"
+  max_eval_samples: 100
+
+eval:
+  metrics:
+    - "perplexity"
+    - "generation"
+  eval_batch_size: 4
+  max_new_tokens: 512
+  temperature: 0.7
+  top_p: 0.9
